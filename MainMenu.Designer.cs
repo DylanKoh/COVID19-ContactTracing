@@ -35,9 +35,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.lbTier2 = new System.Windows.Forms.ListBox();
             this.btnRun = new System.Windows.Forms.Button();
-            this.txtPhoneNumber = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.lbRecords = new System.Windows.Forms.ListBox();
+            this.cbSuspectedPeople = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // lbTier0
@@ -104,21 +104,14 @@
             this.btnRun.UseVisualStyleBackColor = true;
             this.btnRun.Click += new System.EventHandler(this.btnRun_Click);
             // 
-            // txtPhoneNumber
-            // 
-            this.txtPhoneNumber.Location = new System.Drawing.Point(379, 12);
-            this.txtPhoneNumber.Name = "txtPhoneNumber";
-            this.txtPhoneNumber.Size = new System.Drawing.Size(412, 22);
-            this.txtPhoneNumber.TabIndex = 10;
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(262, 15);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(111, 17);
+            this.label4.Size = new System.Drawing.Size(131, 17);
             this.label4.TabIndex = 11;
-            this.label4.Text = "Phone Number: ";
+            this.label4.Text = "Suspected People: ";
             // 
             // lbRecords
             // 
@@ -129,14 +122,23 @@
             this.lbRecords.Size = new System.Drawing.Size(779, 276);
             this.lbRecords.TabIndex = 12;
             // 
+            // cbSuspectedPeople
+            // 
+            this.cbSuspectedPeople.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbSuspectedPeople.FormattingEnabled = true;
+            this.cbSuspectedPeople.Location = new System.Drawing.Point(399, 12);
+            this.cbSuspectedPeople.Name = "cbSuspectedPeople";
+            this.cbSuspectedPeople.Size = new System.Drawing.Size(389, 24);
+            this.cbSuspectedPeople.TabIndex = 13;
+            // 
             // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 728);
+            this.Controls.Add(this.cbSuspectedPeople);
             this.Controls.Add(this.lbRecords);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.txtPhoneNumber);
             this.Controls.Add(this.btnRun);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lbTier2);
@@ -160,9 +162,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ListBox lbTier2;
         private System.Windows.Forms.Button btnRun;
-        private System.Windows.Forms.TextBox txtPhoneNumber;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox lbRecords;
+        private System.Windows.Forms.ComboBox cbSuspectedPeople;
     }
 }
 

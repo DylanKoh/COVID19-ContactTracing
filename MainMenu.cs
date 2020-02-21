@@ -19,7 +19,16 @@ namespace COVID19_ContactTracing
 
         private void MainMenu_Load(object sender, EventArgs e)
         {
-
+            using (var context =  new COVID19Entities())
+            {
+                var getSuspected = (from x in context.ContactTracings
+                                    where x.Temp >= 38
+                                    select x.FullName).Distinct();
+                foreach (var item in getSuspected)
+                {
+                    cbSuspectedPeople.Items.Add(item);
+                }
+            }
 
         }
 
@@ -28,7 +37,10 @@ namespace COVID19_ContactTracing
             lbRecords.Items.Clear();
             using (var context = new COVID19Entities())
             {
-                Route(txtPhoneNumber.Text);
+                var getContact = (from x in context.ContactTracings
+                                  where x.FullName == cbSuspectedPeople.SelectedItem.ToString()
+                                  select x.Contact).FirstOrDefault();
+                Route(getContact);
             }
         }
        
