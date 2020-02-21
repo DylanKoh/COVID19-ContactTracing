@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="COVID19Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ContactTracing">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" Nullable="false" />
+          <Property Name="FTE_ID" Type="bigint" />
+          <Property Name="LocationID" Type="bigint" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="200" />
+          <Property Name="Email" Type="nvarchar" MaxLength="200" />
+          <Property Name="Contact" Type="nvarchar" MaxLength="200" />
+          <Property Name="Temp" Type="decimal" Precision="5" Scale="2" Nullable="false" />
+          <Property Name="RegisterDateTime" Type="datetime" Nullable="false" />
+          <Property Name="ExitDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="FTE">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NRIC" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="UserID" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Contact" Type="nvarchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Locations">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="LocationFloor" Type="tinyint" Nullable="false" />
+          <Property Name="LocationBuildingName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LocationUnitNumber" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_ContactTracing_FTE">
+          <End Role="FTE" Type="Self.FTE" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ContactTracing" Type="Self.ContactTracing" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FTE">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="ContactTracing">
+              <PropertyRef Name="FTE_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ContactTracing_Locations">
+          <End Role="Locations" Type="Self.Locations" Multiplicity="1" />
+          <End Role="ContactTracing" Type="Self.ContactTracing" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Locations">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="ContactTracing">
+              <PropertyRef Name="LocationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="COVID19ModelStoreContainer">
+          <EntitySet Name="ContactTracing" EntityType="Self.ContactTracing" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FTE" EntityType="Self.FTE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Locations" EntityType="Self.Locations" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ContactTracing_FTE" Association="Self.FK_ContactTracing_FTE">
+            <End Role="FTE" EntitySet="FTE" />
+            <End Role="ContactTracing" EntitySet="ContactTracing" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ContactTracing_Locations" Association="Self.FK_ContactTracing_Locations">
+            <End Role="Locations" EntitySet="Locations" />
+            <End Role="ContactTracing" EntitySet="ContactTracing" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="COVID19Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ContactTracing">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" />
+          <Property Name="FTE_ID" Type="Int64" />
+          <Property Name="LocationID" Type="Int64" Nullable="false" />
+          <Property Name="FullName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Contact" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Temp" Type="Decimal" Precision="5" Scale="2" Nullable="false" />
+          <Property Name="RegisterDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ExitDateTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="FTE" Relationship="Self.FK_ContactTracing_FTE" FromRole="ContactTracing" ToRole="FTE" />
+          <NavigationProperty Name="Location" Relationship="Self.FK_ContactTracing_Locations" FromRole="ContactTracing" ToRole="Locations" />
+        </EntityType>
+        <EntityType Name="FTE">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NRIC" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UserID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="FullName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Contact" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="ContactTracings" Relationship="Self.FK_ContactTracing_FTE" FromRole="FTE" ToRole="ContactTracing" />
+        </EntityType>
+        <EntityType Name="Location">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LocationFloor" Type="Byte" Nullable="false" />
+          <Property Name="LocationBuildingName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LocationUnitNumber" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="ContactTracings" Relationship="Self.FK_ContactTracing_Locations" FromRole="Locations" ToRole="ContactTracing" />
+        </EntityType>
+        <Association Name="FK_ContactTracing_FTE">
+          <End Role="FTE" Type="Self.FTE" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ContactTracing" Type="Self.ContactTracing" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FTE">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="ContactTracing">
+              <PropertyRef Name="FTE_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ContactTracing_Locations">
+          <End Role="Locations" Type="Self.Location" Multiplicity="1" />
+          <End Role="ContactTracing" Type="Self.ContactTracing" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Locations">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="ContactTracing">
+              <PropertyRef Name="LocationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="COVID19Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ContactTracings" EntityType="Self.ContactTracing" />
+          <EntitySet Name="FTEs" EntityType="Self.FTE" />
+          <EntitySet Name="Locations" EntityType="Self.Location" />
+          <AssociationSet Name="FK_ContactTracing_FTE" Association="Self.FK_ContactTracing_FTE">
+            <End Role="FTE" EntitySet="FTEs" />
+            <End Role="ContactTracing" EntitySet="ContactTracings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ContactTracing_Locations" Association="Self.FK_ContactTracing_Locations">
+            <End Role="Locations" EntitySet="Locations" />
+            <End Role="ContactTracing" EntitySet="ContactTracings" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="COVID19ModelStoreContainer" CdmEntityContainer="COVID19Entities">
+          <EntitySetMapping Name="ContactTracings">
+            <EntityTypeMapping TypeName="COVID19Model.ContactTracing">
+              <MappingFragment StoreEntitySet="ContactTracing">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="FTE_ID" ColumnName="FTE_ID" />
+                <ScalarProperty Name="LocationID" ColumnName="LocationID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="Temp" ColumnName="Temp" />
+                <ScalarProperty Name="RegisterDateTime" ColumnName="RegisterDateTime" />
+                <ScalarProperty Name="ExitDateTime" ColumnName="ExitDateTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FTEs">
+            <EntityTypeMapping TypeName="COVID19Model.FTE">
+              <MappingFragment StoreEntitySet="FTE">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="NRIC" ColumnName="NRIC" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Locations">
+            <EntityTypeMapping TypeName="COVID19Model.Location">
+              <MappingFragment StoreEntitySet="Locations">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+                <ScalarProperty Name="LocationFloor" ColumnName="LocationFloor" />
+                <ScalarProperty Name="LocationBuildingName" ColumnName="LocationBuildingName" />
+                <ScalarProperty Name="LocationUnitNumber" ColumnName="LocationUnitNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
