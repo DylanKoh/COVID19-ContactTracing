@@ -77,11 +77,30 @@ namespace COVID19_ContactTracing
                         {
                             lbRecords.Items.Add($"\tCurrent: {contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
                                 $"Time in: {contactTracing[i].RegisterDateTime} Travelled rooms: {String.Join(",",RouteTracing(contactTracing[i], contactTracing[i + 1]))}");
+
+                            var list = getTier0(contactTracing[i]);
+                            var groupList = (from x in list
+                                             group x by x.Contact into y
+                                             orderby y.Key.Count()
+                                             select y);
+                            foreach (var tier0 in groupList)
+                            {
+                                lbTier0.Items.Add($"{tier0.Key}({tier0.Key.Count()})");
+                            }
                         }
                         else
                         {
                             lbRecords.Items.Add($"\tCurrent: {contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
                                 $"Time in: {contactTracing[i].RegisterDateTime}");
+                            var list = getTier0(contactTracing[i]);
+                            var groupList = (from x in list
+                                             group x by x.Contact into y
+                                             orderby y.Key.Count()
+                                             select y);
+                            foreach (var tier0 in groupList)
+                            {
+                                lbTier0.Items.Add($"{tier0.Key}({tier0.Key.Count()})");
+                            }
                         }
                     }
                     
@@ -140,6 +159,18 @@ namespace COVID19_ContactTracing
                 
             }
             
+        }
+
+        public List<ContactTracing> getTier0(ContactTracing contactTracing)
+        {
+            using (var context = new COVID19Entities())
+            {
+                var getDirectContact = (from x in context.ContactTracings
+                                        where x.Contact != contactTracing.Contact
+                                        where x.LocationID == contactTracing.LocationID && x.RegisterDateTime >= contactTracing.RegisterDateTime
+                                        select x).ToList();
+                return getDirectContact;
+            }
         }
 
     }
