@@ -90,7 +90,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(132, 13);
             this.label3.TabIndex = 8;
-            this.label3.Text = "Tier 2 (80 - 89 Percentile): ";
+            this.label3.Text = "Tier 2 (75 - 89 Percentile): ";
             // 
             // lbTier2
             // 
@@ -149,7 +149,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(126, 13);
             this.label5.TabIndex = 15;
-            this.label5.Text = "Tier 3 (1 - 79 Percentile): ";
+            this.label5.Text = "Tier 3 (0 - 74 Percentile): ";
             // 
             // lbTier3
             // 
