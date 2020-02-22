@@ -199,7 +199,7 @@
             this.Controls.Add(this.lbTier0);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "MainMenu";
-            this.Text = " Main Menu";
+            this.Text = "Analyse Form";
             this.Load += new System.EventHandler(this.MainMenu_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
