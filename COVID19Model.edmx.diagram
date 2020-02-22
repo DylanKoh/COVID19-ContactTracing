@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="31b5ae68a8504f508554506492251cdb" Name="Diagram1">
+      <Diagram DiagramId="3a737e69841841cc862cb01c2c42b2a1" Name="Diagram1">
         <EntityTypeShape EntityType="COVID19Model.ContactTracing" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="COVID19Model.FTE" Width="1.5" PointX="0.75" PointY="1.375" IsExpanded="true" />
         <EntityTypeShape EntityType="COVID19Model.Location" Width="1.5" PointX="0.75" PointY="5.5" IsExpanded="true" />

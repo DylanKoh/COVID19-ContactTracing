@@ -19,7 +19,7 @@ namespace COVID19_ContactTracing
 
         private void MainMenu_Load(object sender, EventArgs e)
         {
-            using (var context =  new COVID19Entities())
+            using (var context = new COVID19Entities())
             {
                 var getSuspected = (from x in context.ContactTracings
                                     where x.Temp >= 38
@@ -35,22 +35,30 @@ namespace COVID19_ContactTracing
         private void btnRun_Click(object sender, EventArgs e)
         {
             lbRecords.Items.Clear();
+            lbTier0.Items.Clear();
+            lbTier1.Items.Clear();
+            lbTier2.Items.Clear();
+            lbTier3.Items.Clear();
             using (var context = new COVID19Entities())
             {
-                var getContact = (from x in context.ContactTracings
-                                  where x.FullName == cbSuspectedPeople.SelectedItem.ToString()
-                                  select x.Contact).FirstOrDefault();
-                Route(getContact);
+                if (cbSuspectedPeople.SelectedItem != null)
+                {
+                    var getContact = (from x in context.ContactTracings
+                                      where x.FullName == cbSuspectedPeople.SelectedItem.ToString()
+                                      select x.Contact).FirstOrDefault();
+                    Route(getContact);
+                }
+
             }
         }
-       
+
         public void Route(string phoneNumber)
         {
             using (var context = new COVID19Entities())
             {
                 var symptoms = (from x in context.ContactTracings
                                 where x.Contact == phoneNumber
-                                where x.Temp > 38
+                                where x.Temp >= 38
                                 orderby x.RegisterDateTime descending
                                 select x.RegisterDateTime).FirstOrDefault().Date.AddDays(-14);
 
@@ -61,8 +69,9 @@ namespace COVID19_ContactTracing
 
                 var groupDates = (from x in UserHistory
                                   group x by x.RegisterDateTime.Date into y
+                                  orderby y.Key descending
                                   select y);
-
+                var list = new List<ContactTracing>();
                 foreach (var item in groupDates)
                 {
                     var contactTracing = new List<ContactTracing>();
@@ -75,35 +84,30 @@ namespace COVID19_ContactTracing
                     {
                         if (i != contactTracing.Count() - 1)
                         {
-                            lbRecords.Items.Add($"\tCurrent: {contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
-                                $"Time in: {contactTracing[i].RegisterDateTime} Travelled rooms: {String.Join(",",RouteTracing(contactTracing[i], contactTracing[i + 1]))}");
+                            lbRecords.Items.Add($"\tCurrent: IT-{contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
+                                $"Time in: {contactTracing[i].RegisterDateTime}");
+                            lbRecords.Items.Add($"\t\tTravelled rooms: {String.Join(",", RouteTracing(contactTracing[i], contactTracing[i + 1]))}");
 
-                            var list = getTier0(contactTracing[i]);
-                            var groupList = (from x in list
-                                             group x by x.Contact into y
-                                             orderby y.Key.Count()
-                                             select y);
-                            foreach (var tier0 in groupList)
-                            {
-                                lbTier0.Items.Add($"{tier0.Key}({tier0.Key.Count()})");
-                            }
+                            list.AddRange(getTier0(contactTracing[i], contactTracing[i + 1]));
+
                         }
                         else
                         {
-                            lbRecords.Items.Add($"\tCurrent: {contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
+                            lbRecords.Items.Add($"\tCurrent: IT-{contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
                                 $"Time in: {contactTracing[i].RegisterDateTime}");
-                            var list = getTier0(contactTracing[i]);
-                            var groupList = (from x in list
-                                             group x by x.Contact into y
-                                             orderby y.Key.Count()
-                                             select y);
-                            foreach (var tier0 in groupList)
-                            {
-                                lbTier0.Items.Add($"{tier0.Key}({tier0.Key.Count()})");
-                            }
+                            list.AddRange(getTier0(contactTracing[i], null));
+
                         }
                     }
-                    
+
+                }
+                var groupList = (from x in list
+                                 group x by x.Contact into y
+                                 orderby y.Key.Count() descending
+                                 select y);
+                foreach (var tier0 in groupList)
+                {
+                    lbTier0.Items.Add($"{tier0.Key}({tier0.Key.Count()})");
                 }
 
             }
@@ -113,18 +117,35 @@ namespace COVID19_ContactTracing
         public List<long> RouteTracing(ContactTracing source, ContactTracing destination)
         {
             var list = new List<long>();
-
-            var firstRoomSource = Convert.ToInt64(source.LocationID / 10) * 10 + 1;
+            var checkSource = source.LocationID % 10;
             var checkDestination = destination.LocationID % 10;
-            long firstRoomDestination = 0;
-            if (checkDestination != 0)
+            long firstRoomSource = 0;
+
+            if (checkSource == 0)
             {
-                firstRoomDestination = Convert.ToInt64(destination.LocationID / 10) * 10 + 1;
+                firstRoomSource = source.LocationID - 9;
             }
             else
             {
+                firstRoomSource = Convert.ToInt64(source.LocationID / 10) * 10 + 1;
+            }
+            
+            long firstRoomDestination = 0;
+            
+            if (source.Location.LocationFloor == destination.Location.LocationFloor)
+            {
                 firstRoomDestination = firstRoomSource;
             }
+            else if (checkDestination == 0)
+            {
+                firstRoomDestination = destination.LocationID - 9;
+            }
+            else
+            {
+                firstRoomDestination = Convert.ToInt64(destination.LocationID / 10) * 10 + 1;
+            }
+            
+
             if (firstRoomSource != firstRoomDestination)
             {
                 for (long i = source.LocationID; i >= firstRoomSource; i--)
@@ -156,20 +177,35 @@ namespace COVID19_ContactTracing
                     }
                     return list;
                 }
-                
+
             }
-            
+
         }
 
-        public List<ContactTracing> getTier0(ContactTracing contactTracing)
+        public List<ContactTracing> getTier0(ContactTracing contactTracing, ContactTracing nextTimeIn)
         {
             using (var context = new COVID19Entities())
             {
-                var getDirectContact = (from x in context.ContactTracings
-                                        where x.Contact != contactTracing.Contact
-                                        where x.LocationID == contactTracing.LocationID && x.RegisterDateTime >= contactTracing.RegisterDateTime
-                                        select x).ToList();
-                return getDirectContact;
+                if (nextTimeIn == null)
+                {
+                    var endHour = contactTracing.RegisterDateTime.Date + dtpTime.Value.TimeOfDay;
+                    var getDirectContact = (from x in context.ContactTracings
+                                            where x.Contact != contactTracing.Contact
+                                            where x.LocationID == contactTracing.LocationID && x.RegisterDateTime >= contactTracing.RegisterDateTime && x.RegisterDateTime < endHour
+                                            select x).ToList();
+                    return getDirectContact;
+                }
+                else
+                {
+                    //Assumes infected takes 1 minute to travel to each room
+                    var endTime = nextTimeIn.RegisterDateTime.AddMinutes(-1);
+                    var getDirectContact = (from x in context.ContactTracings
+                                            where x.Contact != contactTracing.Contact
+                                            where x.LocationID == contactTracing.LocationID && x.RegisterDateTime >= contactTracing.RegisterDateTime && x.RegisterDateTime < endTime
+                                            select x).ToList();
+                    return getDirectContact;
+                }
+
             }
         }
 

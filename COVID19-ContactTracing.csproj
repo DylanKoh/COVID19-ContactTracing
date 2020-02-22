@@ -122,19 +122,19 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="COVID19Model.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>COVID19Model.Context.cs</LastGenOutput>
       <DependentUpon>COVID19Model.edmx</DependentUpon>
+      <LastGenOutput>COVID19Model.Context.cs</LastGenOutput>
     </Content>
     <Content Include="COVID19Model.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>COVID19Model.edmx</DependentUpon>
       <LastGenOutput>COVID19Model.cs</LastGenOutput>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
