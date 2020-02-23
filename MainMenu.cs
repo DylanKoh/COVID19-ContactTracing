@@ -73,7 +73,6 @@ namespace COVID19_ContactTracing
                                   select y);
                 var list = new List<ContactTracing>();
                 var listNon = new List<ContactTracing>();
-                Decimal timesTravelled = 0;
                 foreach (var item in groupDates)
                 {
                     var contactTracing = new List<ContactTracing>();
@@ -92,7 +91,6 @@ namespace COVID19_ContactTracing
 
                             list.AddRange(getTier0(contactTracing[i], contactTracing[i + 1]));
                             listNon.AddRange(getNonDirect(contactTracing[i + 1], RouteTracing(contactTracing[i], contactTracing[i + 1])));
-                            timesTravelled++;
                         }
                         else
                         {
@@ -119,21 +117,22 @@ namespace COVID19_ContactTracing
                 }
                 var groupNonList = (from x in listNon
                                     group x by x.Contact into y
-                                    orderby y.Count() descending
-                                    select y);
-                var totalTravelCount = timesTravelled;
+                                    orderby y.Count()
+                                    select y).ToList();
                 foreach (var records in groupNonList)
                 {
-                    var getPercentile = Convert.ToDecimal(Convert.ToDecimal(records.Count()) / Convert.ToDecimal(totalTravelCount)) * 100;
-                    if (getPercentile >= 90 && getPercentile < 100)
+                    var ninetyPercentile = Math.Round(0.9 * groupNonList.Count(), 0, MidpointRounding.AwayFromZero);
+                    var seventyFivePercentile = Math.Round(0.75 * groupNonList.Count(), 0, MidpointRounding.AwayFromZero);
+                    var getIndex = groupNonList.IndexOf(records) + 1;
+                    if (getIndex >= ninetyPercentile)
                     {
                         lbTier1.Items.Add($"{records.Select(x => x.FullName).FirstOrDefault()} - {records.Key}({records.Count()})");
                     }
-                    else if (getPercentile >= 75 && getPercentile < 90)
+                    else if (getIndex >= seventyFivePercentile && getIndex < ninetyPercentile)
                     {
                         lbTier2.Items.Add($"{records.Select(x => x.FullName).FirstOrDefault()} - {records.Key}({records.Count()})");
                     }
-                    else if (getPercentile > 0 && getPercentile < 75)
+                    else if (getIndex < ninetyPercentile)
                     {
                         lbTier3.Items.Add($"{records.Select(x => x.FullName).FirstOrDefault()} - {records.Key}({records.Count()})");
                     }
