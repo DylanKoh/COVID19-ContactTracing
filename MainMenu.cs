@@ -88,7 +88,7 @@ namespace COVID19_ContactTracing
                             lbRecords.Items.Add($"\tCurrent: IT-{contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
                                 $"Time in: {contactTracing[i].RegisterDateTime}");
                             lbRecords.Items.Add($"\t\tTravelled rooms: {String.Join(",", RouteTracing(contactTracing[i], contactTracing[i + 1]))}");
-
+                            lbRecords.Items.Add("");
                             list.AddRange(getTier0(contactTracing[i], contactTracing[i + 1]));
                             listNon.AddRange(getNonDirect(contactTracing[i + 1], RouteTracing(contactTracing[i], contactTracing[i + 1])));
                         }
@@ -96,8 +96,20 @@ namespace COVID19_ContactTracing
                         {
                             lbRecords.Items.Add($"\tCurrent: IT-{contactTracing[i].Location.LocationFloor}-{contactTracing[i].Location.LocationUnitNumber} " +
                                 $"Time in: {contactTracing[i].RegisterDateTime}");
-                            list.AddRange(getTier0(contactTracing[i], null));
-
+                            if (contactTracing[i].Location.LocationFloor != 1)
+                            {
+                                lbRecords.Items.Add($"\t\tTravelled rooms: {String.Join(",", RouteTracing(contactTracing[i], null))}");
+                                lbRecords.Items.Add("");
+                                list.AddRange(getTier0(contactTracing[i], null));
+                                listNon.AddRange(getNonDirect(null, RouteTracing(contactTracing[i], null)));
+                            }
+                            else
+                            {
+                                lbRecords.Items.Add("");
+                                list.AddRange(getTier0(contactTracing[i], null));
+                            }
+                            
+                            
                         }
                     }
 
@@ -145,67 +157,213 @@ namespace COVID19_ContactTracing
         public List<long> RouteTracing(ContactTracing source, ContactTracing destination)
         {
             var list = new List<long>();
-            var checkSource = source.LocationID % 10;
-            var checkDestination = destination.LocationID % 10;
-            long firstRoomSource = 0;
+            if (destination != null)
+            {
+                var checkSource = source.LocationID % 10;
+                var checkDestination = destination.LocationID % 10;
+                long firstRoomSource = 0;
 
-            if (checkSource == 0)
-            {
-                firstRoomSource = source.LocationID - 9;
-            }
-            else
-            {
-                firstRoomSource = Convert.ToInt64(source.LocationID / 10) * 10 + 1;
-            }
-
-            long firstRoomDestination = 0;
-
-            if (source.Location.LocationFloor == destination.Location.LocationFloor)
-            {
-                firstRoomDestination = firstRoomSource;
-            }
-            else if (checkDestination == 0)
-            {
-                firstRoomDestination = destination.LocationID - 9;
-            }
-            else
-            {
-                firstRoomDestination = Convert.ToInt64(destination.LocationID / 10) * 10 + 1;
-            }
-
-
-            if (firstRoomSource != firstRoomDestination)
-            {
-                for (long i = source.LocationID; i >= firstRoomSource; i--)
+                if (checkSource == 0)
                 {
-                    list.Add(i);
+                    firstRoomSource = source.LocationID - 9;
+                }
+                else
+                {
+                    firstRoomSource = Convert.ToInt64(source.LocationID / 10) * 10 + 1;
                 }
 
-                for (long i = firstRoomDestination; i <= destination.LocationID; i++)
+                long firstRoomDestination = 0;
+
+                if (source.Location.LocationFloor == destination.Location.LocationFloor)
                 {
-                    list.Add(i);
+                    firstRoomDestination = firstRoomSource;
+                }
+                else if (checkDestination == 0)
+                {
+                    firstRoomDestination = destination.LocationID - 9;
+                }
+                else
+                {
+                    firstRoomDestination = Convert.ToInt64(destination.LocationID / 10) * 10 + 1;
+                }
+
+                var beforeMiddleSource = firstRoomSource + 4;
+                var afterMiddleSource = firstRoomSource + 5;
+
+                var beforeMiddleDestination = firstRoomDestination + 4;
+                var afterMiddleDestination = firstRoomDestination + 5;
+
+
+                if (firstRoomSource != firstRoomDestination)
+                {
+                    var getRoomDiffSource = source.LocationID - firstRoomSource;
+                    var getRoomDiffDestination = destination.LocationID - firstRoomDestination;
+
+                    if (getRoomDiffSource > 2 && getRoomDiffSource <= 4)
+                    {
+                        if (getRoomDiffDestination <= 2)
+                        {
+                            for (long i = source.LocationID; i >= firstRoomSource; i--)
+                            {
+                                list.Add(i);
+                            }
+                            for (long i = firstRoomDestination; i <= destination.LocationID; i++)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        else if (getRoomDiffDestination > 2 && getRoomDiffDestination <= 4)
+                        {
+                            for (long i = source.LocationID; i <= beforeMiddleSource; i++)
+                            {
+                                list.Add(i);
+                            }
+                            for (long i = beforeMiddleDestination; i >= destination.LocationID; i--)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        else
+                        {
+                            for (long i = source.LocationID; i <= beforeMiddleSource; i++)
+                            {
+                                list.Add(i);
+                            }
+                            for (long i = afterMiddleDestination; i <= destination.LocationID; i++)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                    }
+                    else if (getRoomDiffSource > 4)
+                    {
+                        if (getRoomDiffDestination <= 4)
+                        {
+                            for (long i = source.LocationID; i >= afterMiddleSource; i--)
+                            {
+                                list.Add(i);
+                            }
+                            for (long i = beforeMiddleDestination; i >= destination.LocationID; i--)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        else
+                        {
+                            for (long i = source.LocationID; i >= afterMiddleSource; i--)
+                            {
+                                list.Add(i);
+                            }
+                            for (long i = afterMiddleDestination; i <= destination.LocationID; i++)
+                            {
+                                list.Add(i);
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        if (getRoomDiffDestination <= 3)
+                        {
+                            for (long i = source.LocationID; i >= firstRoomSource; i--)
+                            {
+                                list.Add(i);
+                            }
+
+                            for (long i = firstRoomDestination; i <= destination.LocationID; i++)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        else if (getRoomDiffDestination > 3 && getRoomDiffDestination <= 4)
+                        {
+                            for (long i = source.LocationID; i <= beforeMiddleSource; i++)
+                            {
+                                list.Add(i);
+                            }
+
+                            for (long i = beforeMiddleDestination; i >= destination.LocationID; i--)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        else
+                        {
+                            for (long i = source.LocationID; i <= beforeMiddleSource; i++)
+                            {
+                                list.Add(i);
+                            }
+
+                            for (long i = afterMiddleDestination; i <= destination.LocationID; i++)
+                            {
+                                list.Add(i);
+                            }
+                        }
+
+
+                    }
+
+                }
+                else
+                {
+                    if (source.LocationID < destination.LocationID)
+                    {
+                        for (long i = source.LocationID; i <= destination.LocationID; i++)
+                        {
+                            list.Add(i);
+                        }
+                    }
+                    else
+                    {
+                        for (long i = source.LocationID; i >= destination.LocationID; i--)
+                        {
+                            list.Add(i);
+                        }
+                    }
+
                 }
                 return list;
             }
             else
             {
-                if (source.LocationID < destination.LocationID)
+                var checkSource = source.LocationID % 10;
+                long firstRoomSource = 0;
+                if (checkSource == 0)
                 {
-                    for (long i = source.LocationID; i <= destination.LocationID; i++)
-                    {
-                        list.Add(i);
-                    }
-                    return list;
+                    firstRoomSource = source.LocationID - 9;
                 }
                 else
                 {
-                    for (long i = source.LocationID; i >= destination.LocationID; i--)
+                    firstRoomSource = Convert.ToInt64(source.LocationID / 10) * 10 + 1;
+                }
+                var beforeMiddleSource = firstRoomSource + 4;
+                var afterMiddleSource = firstRoomSource + 5;
+                var getRoomDiffSource = source.LocationID - firstRoomSource;
+                if (getRoomDiffSource > 2)
+                {
+                    if (getRoomDiffSource > 4)
+                    {
+                        for (long i = source.LocationID; i >= afterMiddleSource; i--)
+                        {
+                            list.Add(i);
+                        }
+                    }
+                    else
+                    {
+                        for (long i = source.LocationID; i <= beforeMiddleSource; i++)
+                        {
+                            list.Add(i);
+                        }
+                    }
+                }
+                else
+                {
+                    for (long i = source.LocationID; i >= firstRoomSource; i--)
                     {
                         list.Add(i);
                     }
-                    return list;
                 }
-
+                return list;
             }
 
         }
@@ -239,19 +397,43 @@ namespace COVID19_ContactTracing
         public List<ContactTracing> getNonDirect(ContactTracing nextTimeIn, List<long> RoomsPassed)
         {
             //Assumes infected takes 5 minute to travel to each room
-            var endTime = nextTimeIn.RegisterDateTime.AddMinutes(-5);
-            var getIndirectContact = new List<ContactTracing>();
-            using (var context = new COVID19Entities())
+            if (nextTimeIn != null)
             {
-                foreach (var item in RoomsPassed)
+                var endTime = nextTimeIn.RegisterDateTime.AddMinutes(-5);
+                var getIndirectContact = new List<ContactTracing>();
+                using (var context = new COVID19Entities())
                 {
-                    getIndirectContact.AddRange((from x in context.ContactTracings
-                                                 where x.Contact != nextTimeIn.Contact
-                                                 where x.LocationID == item && x.RegisterDateTime >= endTime && x.RegisterDateTime < nextTimeIn.RegisterDateTime
-                                                 select x).ToList());
+                    foreach (var item in RoomsPassed)
+                    {
+                        getIndirectContact.AddRange((from x in context.ContactTracings
+                                                     where x.Contact != nextTimeIn.Contact
+                                                     where x.LocationID == item && x.RegisterDateTime >= endTime && x.RegisterDateTime < nextTimeIn.RegisterDateTime
+                                                     select x).ToList());
+                    }
+                    return getIndirectContact;
                 }
-                return getIndirectContact;
             }
+            else
+            {
+                var leavingTime = dtpTime.Value.Date.AddMinutes(-5);
+                var getIndirectContact = new List<ContactTracing>();
+                
+                using (var context = new COVID19Entities())
+                {
+                    var getContact = (from x in context.ContactTracings
+                                      where x.FullName == cbSuspectedPeople.SelectedItem.ToString()
+                                      select x.Contact).FirstOrDefault();
+                    foreach (var item in RoomsPassed)
+                    {
+                        getIndirectContact.AddRange((from x in context.ContactTracings
+                                                     where x.Contact != getContact
+                                                     where x.LocationID == item && x.RegisterDateTime >= leavingTime && x.RegisterDateTime < dtpTime.Value
+                                                     select x).ToList());
+                    }
+                    return getIndirectContact;
+                }
+            }
+            
 
         }
 
